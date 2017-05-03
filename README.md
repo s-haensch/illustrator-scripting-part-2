@@ -27,7 +27,7 @@ for (s = 0; s < selection.length; s++) {
 ```
 
 ## Snacksize Me
-The first improvement to the script we be to make parts of it reusable by extracting them to individual functions. Since our script only does one thing, we can just create ourselves the obvious `createTextFramesFromLines`  function, which takes a multi-lined text frame as its argument:
+The first improvement to the script will be to make parts of it reusable by extracting them to individual functions. Since our script only does one thing, we can just create ourselves the obvious `createTextFramesFromLines`  function, which takes a multi-lined text frame as its argument:
 
 ```javascript
 function createTextFramesFromLines(textWithLines) {
@@ -103,18 +103,17 @@ function copyTextToPosition(textRange, x, y) {
 }
 ```
 
-Sweet, now we have also have a function that can copy a text frame to any other place on the artboard. Plus, we have more structure and reusability. But it's still quite a lot to read. Let's change that by extracting our functions into a separate file.
+Sweet, now we also have a utility function that can copy a text frame to any other place on the artboard. Plus, we have more structure and reusability. But it's still quite a lot to read. Let's change that by extracting our functions into a separate file.
 
 ## Divide and conquer
-From my experience, scripts tend to get big and hefty the more they can do, especially if you have created UI elements to interact with them.
-
-In modern day web development, we split our code into several areas of concern and then use a bundler to combine them back together. We can do the same thing for Illustrator scripts. In the following, I will show you how to do that with `webpack`.
+From my experience, scripts tend to get big and hefty the more they can do. In modern day web development, we split our code into several areas of concern and then use a bundler to combine them back together. We can do the same thing for Illustrator scripts. In the following, I will show you how to do that with `webpack`.
 
 #### The webpack setup
 Sorry in advance, if this section gives you a hard time. If you never got in touch with a bundler before, there might occur some confusion about the steps it takes to set it up.
 But once you got it running, it will be totally worth it.
 
-First, you need to have `node.js` installed on your system. If don't have it yet, go over to **node.js** and follow the instructions there. Once you're ready with that, go back to your script's project folder.
+First, you need to have `node.js` installed on your system. If don't have it yet, go over to
+[ the node.js website][url-node] and follow the instructions there. Once you're ready with that, go back to your script's project folder.
 
 To install webpack, open a terminal at the folder where your script is located and type `$ npm init` into it. You will be asked to fill in some information about your project, but you can also leave it blank and just skip through it by hitting 'Enter'.
 
@@ -170,24 +169,22 @@ module.exports = {
 };
 ```
 
-
-Also, we have to pass the `doc` object, our currently active document, as a parameter to our functions though. The `copyTextToPosition` function uses it to create a new text frame, but being isolated from our main script now, it does not know where to find it, unless we pass it in as an argument.
+Also, we have to pass the `doc` object, our currently active document, as a parameter to our functions. The `copyTextToPosition` function uses it to create a new text frame, but being isolated from our main script now, it does not know where to find it, unless we pass it in as an argument.
 ```javascript
 // before
 copyTextToPosition: function (textRange, x, y) {
-  var newPointText = doc.textFrames.add(); // what's a 'doc'?
+  var newPointText = doc.textFrames.add(); // not found
   //...
 ```
 ```javascript
 // now
 copyTextToPosition: function (doc, textRange, x, y) {
-  var newPointText = doc.textFrames.add(); // ahh… now I see
+  var newPointText = doc.textFrames.add(); // this will work
   //...
 ```
 Your files should look like this:
 ```javascript
 // 'utility.js'
-
 module.exports = {
   copyTextToPosition: function (doc, textRange, x, y) {
     var newPointText = doc.textFrames.add();
@@ -214,7 +211,6 @@ module.exports = {
 ```
 ```javascript
 // index.js (your main script file)
-
 var util = require('./utility.js');
 var doc = app.activeDocument,
   selection = doc.selection;
@@ -364,6 +360,7 @@ Looking at our `copyTextToPosition` function, not only do we use the `doc.textFr
 Below that, it uses `textRange.duplicate()`, which we also need to mock in order to make our test pass. So here is the full annotated test for our `copyTextToPosition` function:
 
 ```javascript
+// utilitySpec.js
 var chai = require('chai'),
  spies = require('chai-spies'),
  expect = chai.expect;
@@ -564,5 +561,6 @@ There's no more copying and pasting blocks of code from older scripts, just trus
 
 
 [url-beginner]: https://github.com/s-haensch/illustrator-scripting-part-1
+[url-node]: https://nodejs.org/en/
 [url-expect]: http://chaijs.com/guide/styles/#expect
 [url-assert]: https://nodejs.org/api/assert.html
