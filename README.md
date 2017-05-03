@@ -563,6 +563,6 @@ There's no more copying and pasting blocks of code from older scripts, just trus
 
 
 
-[url-beginner]: http://www.example.com/
+[url-beginner]: https://github.com/s-haensch/illustrator-scripting-part-1
 [url-expect]: http://chaijs.com/guide/styles/#expect
 [url-assert]: https://nodejs.org/api/assert.html
